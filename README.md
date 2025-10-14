@@ -2,9 +2,9 @@
 
 This project provides three core features as independent microservices with a Node.js API gateway and a React frontend:
 
-- Skill extraction from resume (Python FastAPI)
-- Job recommendation using collaborative filtering (Python FastAPI)
-- Placement prediction (Python FastAPI)
+- Skill extraction from resumes (PDF/DOCX/Image w/ OCR) (Python FastAPI)
+- Job recommendation via skill-overlap scoring (Python FastAPI)
+- Placement prediction heuristic (Python FastAPI)
 
 The Node backend proxies requests to these services; the frontend consumes the backend endpoints.
 
@@ -58,69 +58,78 @@ docker compose up --build
 
 Services will be available on the same ports listed above.
 
-## API contracts
+## API contracts (Gateway)
 
 - POST /api/resumes/upload
-
-  - form-data: resume (file)
-  - returns: { skills: string[] }
-
-- GET /api/jobs/recommend/:studentId?top_n=5
-
-  - returns: { recommendations: string[] }
-
+  - form-data: resume (file field name: `resume`)
+  - returns: `{ skills: string[] }`
+- POST /api/jobs/recommend?top_n=5
+  - body: `{ skills: string[] }`
+  - returns: `{ recommendations: string[] }`
 - POST /api/placement
-  - body: { cgpa:number, dept:string, projects:number, internships:number, aptitude_score:number, interview_score:number, skill_count:number }
-  - returns: { placement_probability: number }
+  - body: `{ skills: string[] }`
+  - returns: `{ placement_probability: number }`
+
+## Service maintenance endpoints
+
+Resume NLP:
+
+- GET http://localhost:8001/diagnostics
+- POST http://localhost:8001/reload-corpus (reloads `skill_corpus.txt`)
+
+Collaborative Filter:
+
+- GET http://localhost:8002/diagnostics
+- POST http://localhost:8002/reload-catalog (reloads `job_catalog.json`)
 
 ## Notes
 
-- The Resume NLP service uses fuzzy matching against a curated skills list. SpaCy is optional; if the model isn't available, it falls back to basic tokenization.
-- The collaborative filter uses a static interaction matrix for demo purposes; replace with your data.
-- The placement model trains a simple Logistic Regression demo model on first run and persists to a pickle.
+- Skill corpus externalized: `ml-service/resume-nlp/skill_corpus.txt` (override path via `SKILL_CORPUS_PATH`).
+- Job catalog externalized: `ml-service/collaborative-filter/job_catalog.json` (override via `JOB_CATALOG_PATH`).
+- Resume NLP uses fuzzy matching (RapidFuzz). spaCy is optional; absence just triggers simple tokenization.
+- Image OCR requires Tesseract installed locally (see below) plus `pytesseract` Python lib.
+- Placement prediction is a heuristic on unique skill count (placeholder for a real model).
+- Frontend allows manual skill add and clear-all; edits immediately re-trigger recommendations & placement.
+
+### Installing Tesseract (Windows)
+
+Options:
+
+1. Chocolatey (admin PowerShell):
+
+```powershell
+choco install tesseract -y
+```
+
+2. Scoop:
+
+```powershell
+scoop install tesseract
+```
+
+3. Manual: Download installer from https://github.com/tesseract-ocr/tesseract and add install dir (e.g. `C:\Program Files\Tesseract-OCR`) to PATH.
+
+If installed in a non-standard path, set environment variable before starting the service:
+
+```
+set TESSDATA_PREFIX=C:\Program Files\Tesseract-OCR\tessdata
+```
+
+### Environment variables
+
+| Variable          | Service              | Purpose                   | Default                         |
+| ----------------- | -------------------- | ------------------------- | ------------------------------- |
+| SKILL_CORPUS_PATH | resume-nlp           | Path to skill corpus file | skill_corpus.txt in service dir |
+| JOB_CATALOG_PATH  | collaborative-filter | Path to job catalog JSON  | job_catalog.json in service dir |
+| LOG_LEVEL         | all python services  | Logging level             | INFO                            |
+
+After editing corpus/catalog files you can POST to reload endpoints (see maintenance section) without restarting containers.
 
 ## Troubleshooting
 
 - Ensure the three Python services are running before the backend.
-- If uploads fail, verify the backend sends multipart/form-data and the NLP service receives field name `file`.
+- If uploads fail, verify multipart form uses field name `resume` (gateway maps to NLP service field `file`).
+- Empty skill list? Check /diagnostics for corpus size; maybe corpus path incorrect.
+- OCR returning no text: confirm Tesseract installed & in PATH; try a higher quality image.
+- Change in corpus or catalog not reflected: call reload endpoint.
 - For Windows path issues, avoid spaces in path names where possible.
-
-## Deploying to Render (recommended)
-
-This repo includes a Render blueprint (`render.yaml`) to deploy all 5 services:
-
-- Frontend: static site (Vite build)
-- Backend: Node/Express
-- Resume NLP: Python/FastAPI
-- Collaborative Filter: Python/FastAPI
-- Placement Predict: Python/FastAPI
-
-Steps:
-
-1. Push this repo to your GitHub (public or private).
-2. Create a Render account at https://render.com and connect your GitHub.
-3. Click New → Blueprint, pick this repository.
-4. Accept the defaults; ensure all five services are listed.
-5. Deploy. Render will build and start each service.
-
-After deploy, grab the service URLs from the Render dashboard:
-
-- Backend (placement-backend): https://PLACEMENT-BACKEND-SUBDOMAIN.onrender.com
-- Resume NLP: https://RESUME-NLP-SUBDOMAIN.onrender.com
-- Collaborative Filter: https://COLLABORATIVE-FILTER-SUBDOMAIN.onrender.com
-- Placement Predict: https://PLACEMENT-PREDICT-SUBDOMAIN.onrender.com
-- Frontend (placement-frontend): https://PLACEMENT-FRONTEND-SUBDOMAIN.onrender.com
-
-Notes:
-
-- The blueprint sets VITE_API_URL for the static Frontend to point to `https://placement-backend.onrender.com`.
-  - If your backend URL differs, update the Frontend service Env Var `VITE_API_URL` to the actual backend URL and redeploy.
-- The backend picks up the ML service URLs via env vars in the blueprint; if your ML service names differ, update them and redeploy.
-- Health checks are exposed for all services at `/health`.
-- Free plan may sleep services when idle; first request may be cold.
-
-Verification after deployment:
-
-- Backend: `GET /health` → `{ "status": "ok" }`
-- Frontend: load the URL and interact with the three features.
-- Endpoints: use the `tests/smoke.http` file with updated base URLs.

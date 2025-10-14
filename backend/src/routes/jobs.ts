@@ -3,11 +3,15 @@ import { getJobRecommendations } from "../services/cfService";
 
 const router = Router();
 
-router.get("/recommend/:studentId", async (req, res) => {
+router.post("/recommend", async (req, res) => {
   try {
-    const studentId = req.params.studentId;
+    const skills: string[] = Array.isArray(req.body?.skills)
+      ? req.body.skills
+      : [];
     const topN = Number(req.query.top_n) || 5;
-    const recommendations = await getJobRecommendations(studentId, topN);
+    if (!skills.length)
+      return res.status(400).json({ error: "skills array required" });
+    const recommendations = await getJobRecommendations(skills, topN);
     res.json({ recommendations });
   } catch (err) {
     res.status(500).json({ error: "Failed to fetch recommendations" });

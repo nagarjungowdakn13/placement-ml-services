@@ -1,19 +1,4 @@
 services:
-  - type: static_site
-    name: placement-frontend
-    plan: free
-    buildCommand: cd frontend && npm ci && npm run build
-    publishPath: frontend/dist
-    # Note: Static site builds at build time. If using fromService here,
-    # ensure dependent service exists or set this manually after first deploy.
-    # envVars:
-    #   - key: VITE_API_URL
-    #     fromService:
-    #       type: web
-    #       name: placement-backend
-    #       property: url
-    autoDeploy: true
-
   - type: web
     name: placement-backend
     env: node
@@ -74,3 +59,10 @@ services:
     healthCheckPath: /health
     envVars: []
     autoDeploy: true
+
+staticSites:
+  - name: placement-frontend
+    buildCommand: cd frontend && npm ci && npm run build
+    publishPath: frontend/dist
+    autoDeploy: true
+    # After backend is deployed, set VITE_API_URL in the dashboard to the backend URL

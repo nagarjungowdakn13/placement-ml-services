@@ -1,8 +1,11 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, Body
 from fastapi.middleware.cors import CORSMiddleware
-import pandas as pd
-from sklearn.metrics.pairwise import cosine_similarity
 import uvicorn
+from typing import List, Dict
+import os, json, logging
+
+logger = logging.getLogger("collaborative-filter")
+logging.basicConfig(level=os.getenv("LOG_LEVEL", "INFO").upper(), format="[%(asctime)s] %(levelname)s %(name)s: %(message)s")
 
 app = FastAPI(title="Collaborative Filtering Service")
 
@@ -13,30 +16,52 @@ app.add_middleware(
     allow_headers=["*"]
 )
 
-interaction_matrix = pd.DataFrame({
-    "jobA": [1, 1, 0],
-    "jobB": [0, 1, 1],
-    "jobC": [1, 0, 1],
-    "jobD": [0, 0, 0]
-}, index=["student1", "student2", "student3"])
+DEFAULT_CATALOG_PATH = os.getenv("JOB_CATALOG_PATH", os.path.join(os.path.dirname(__file__), "job_catalog.json"))
 
-@app.get("/recommendations/{student_id}")
-def recommend_jobs(student_id: str, top_n: int = 5):
-    if student_id not in interaction_matrix.index:
-        return {"error": "student not found"}
+def load_catalog(path: str = DEFAULT_CATALOG_PATH) -> Dict[str, List[str]]:
+    try:
+        with open(path, "r", encoding="utf-8") as f:
+            catalog = json.load(f)
+        logger.info("Loaded job catalog entries=%d path=%s", len(catalog), path)
+        return catalog
+    except Exception as e:
+        logger.warning("Failed to load job catalog at %s: %s", path, e)
+        return {
+            "Data Analyst": ["python", "sql", "pandas", "excel"],
+            "Backend Developer": ["node.js", "express", "sql", "docker"],
+        }
 
-    student_vector = interaction_matrix.loc[student_id].values.reshape(1, -1)
-    similarities = cosine_similarity(student_vector, interaction_matrix.values)[0]
+JOB_CATALOG = load_catalog()
 
-    scores = pd.Series(similarities, index=interaction_matrix.index).drop(student_id)
-    job_scores = {}
-    for other_student, sim in scores.items():
-        for job, interacted in interaction_matrix.loc[other_student].items():
-            if interacted > 0:
-                job_scores[job] = job_scores.get(job, 0) + sim * interacted
+@app.post("/recommendations")
+def recommend_jobs(payload: dict = Body(...), top_n: int = 5):
+    user_skills: List[str] = [s for s in payload.get("skills", []) if isinstance(s, str)]
+    skillset = {s.strip().lower() for s in user_skills if s.strip()}
+    if not skillset:
+        return {"recommendations": []}
 
-    top_jobs = sorted(job_scores.items(), key=lambda x: x[1], reverse=True)[:top_n]
-    return {"recommendations": [job for job, _ in top_jobs]}
+    scored = []
+    for job, tags in JOB_CATALOG.items():
+        tagset = {t.lower() for t in tags}
+        overlap = len(skillset & tagset)
+        if overlap:
+            scored.append((job, overlap, len(tagset)))
+
+    # sort by overlap desc then coverage ratio desc
+    scored.sort(key=lambda x: (x[1], x[1]/x[2] if x[2] else 0), reverse=True)
+    recs = [j for j, _, _ in scored[:top_n]]
+    logger.info("Recommendations computed count=%d", len(recs))
+    return {"recommendations": recs}
+
+@app.get("/diagnostics")
+def diagnostics():
+    return {"catalog_size": len(JOB_CATALOG), "sample": list(JOB_CATALOG.keys())[:10]}
+
+@app.post("/reload-catalog")
+def reload_catalog():
+    global JOB_CATALOG
+    JOB_CATALOG = load_catalog()
+    return {"reloaded": True, "catalog_size": len(JOB_CATALOG)}
 
 @app.get("/health")
 def health():

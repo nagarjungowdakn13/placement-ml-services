@@ -1,0 +1,22 @@
+{
+  "Data Analyst": ["python", "sql", "pandas", "excel"],
+  "Backend Developer": ["node.js", "express", "sql", "docker"],
+  "Frontend Developer": ["react", "javascript", "html", "css"],
+  "ML Engineer": ["python", "machine learning", "pytorch", "tensorflow"],
+  "DevOps Engineer": ["docker", "kubernetes", "ci/cd", "linux"],
+  "Full Stack Developer": ["react", "node.js", "javascript", "sql"],
+  "Cloud Engineer": ["aws", "azure", "gcp", "terraform"],
+  "Data Engineer": ["python", "spark", "hadoop", "sql"],
+  "Security Analyst": ["cybersecurity", "network security", "linux", "python"],
+  "QA Engineer": ["testing", "automation", "selenium", "ci/cd"],
+  "Product Manager": ["agile", "scrum", "communication", "strategic planning"],
+  "Business Analyst": ["data analysis", "sql", "excel", "communication"],
+  "AI Specialist": [
+    "machine learning",
+    "deep learning",
+    "pytorch",
+    "tensorflow"
+  ],
+  "SRE": ["linux", "kubernetes", "prometheus", "grafana"],
+  "MLOps Engineer": ["ml", "docker", "kubernetes", "ci/cd"]
+}

@@ -1,0 +1,74 @@
+python
+java
+c++
+javascript
+typescript
+react
+node.js
+express
+fastapi
+django
+flask
+sql
+postgresql
+mysql
+mongodb
+redis
+docker
+kubernetes
+aws
+azure
+gcp
+machine learning
+data analysis
+nlp
+computer vision
+pandas
+numpy
+scikit-learn
+tensorflow
+pytorch
+html
+css
+git
+linux
+bash
+rest api
+graphql
+microservices
+agile
+jira
+unit testing
+pytest
+ci/cd
+jenkins
+github actions
+terraform
+ansible
+spark
+hadoop
+scala
+go
+r
+php
+laravel
+ruby
+rails
+selenium
+cypress
+quality assurance
+cloud architecture
+security
+encryption
+authentication
+authorization
+servicenow
+salesforce
+power bi
+tableau
+matlab
+data visualization
+feature engineering
+model deployment
+prompt engineering
+large language models
