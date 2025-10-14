@@ -1,5 +1,5 @@
 services:
-  - type: static
+  - type: static_site
     name: placement-frontend
     plan: free
     buildCommand: cd frontend && npm ci && npm run build
