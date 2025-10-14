@@ -1,0 +1,67 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Student {
+  id                     Int                      @id @default(autoincrement())
+  name                   String
+  email                  String                   @unique
+  password               String
+  cgpa                   Float?
+  department             String?
+  skills                 String?
+  projects               Int?
+  internships            Int?
+  aptitudeScore          Float?
+  interviewPerformance   Float?
+  jobInteractions        StudentJobInteraction[]   @relation("StudentToJobInteractions")
+  placementPredictions   PlacementPrediction[]     @relation("StudentToPredictions")
+  createdAt              DateTime                 @default(now())
+}
+
+model Job {
+  id                     Int                      @id @default(autoincrement())
+  title                  String
+  description            String
+  companyName            String?
+  location               String?
+  salaryRange            String?
+  postedAt               DateTime                 @default(now())
+  studentInteractions    StudentJobInteraction[]   @relation("JobToInteractions")
+}
+
+model StudentJobInteraction {
+  id          Int      @id @default(autoincrement())
+  student     Student  @relation("StudentToJobInteractions", fields: [studentId], references: [id])
+  studentId   Int
+  job         Job      @relation("JobToInteractions", fields: [jobId], references: [id])
+  jobId       Int
+  interactionType String  // e.g. "applied", "saved", "viewed"
+  interactionWeight Float @default(0.0)
+  createdAt   DateTime @default(now())
+}
+
+model PlacementPrediction {
+  id          Int      @id @default(autoincrement())
+  student     Student  @relation("StudentToPredictions", fields: [studentId], references: [id])
+  studentId   Int
+  predictedAt DateTime @default(now())
+  result      String
+  probability Float?
+}
+
+model Resume {
+  id          Int      @id @default(autoincrement())
+  student     Student  @relation(fields: [studentId], references: [id])
+  studentId   Int
+  originalFile String
+  parsedText   String?
+  extractedSkills String?
+  primaryDomain String?
+  uploadedAt   DateTime @default(now())
+}

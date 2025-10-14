@@ -1,0 +1,30 @@
+### Backend health
+GET http://localhost:5000/health
+
+### Recommend jobs
+GET http://localhost:5000/api/jobs/recommend/student1
+
+### Placement prediction
+POST http://localhost:5000/api/placement
+Content-Type: application/json
+
+{
+  "cgpa": 8.5,
+  "dept": "CSE",
+  "projects": 3,
+  "internships": 1,
+  "aptitude_score": 85,
+  "interview_score": 80,
+  "skill_count": 5
+}
+
+### Resume skills upload (change path to a local file)
+POST http://localhost:5000/api/resumes/upload
+Content-Type: multipart/form-data; boundary=WebKitFormBoundary7MA4YWxkTrZu0gW
+
+--WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="resume"; filename="resume.txt"
+Content-Type: text/plain
+
+Python React SQL
+--WebKitFormBoundary7MA4YWxkTrZu0gW--
