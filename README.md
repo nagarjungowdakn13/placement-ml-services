@@ -88,6 +88,7 @@ Services will be available on the same ports listed above.
 ## Deploying to Render (recommended)
 
 This repo includes a Render blueprint (`render.yaml`) to deploy all 5 services:
+
 - Frontend: static site (Vite build)
 - Backend: Node/Express
 - Resume NLP: Python/FastAPI
@@ -95,6 +96,7 @@ This repo includes a Render blueprint (`render.yaml`) to deploy all 5 services:
 - Placement Predict: Python/FastAPI
 
 Steps:
+
 1. Push this repo to your GitHub (public or private).
 2. Create a Render account at https://render.com and connect your GitHub.
 3. Click New → Blueprint, pick this repository.
@@ -102,6 +104,7 @@ Steps:
 5. Deploy. Render will build and start each service.
 
 After deploy, grab the service URLs from the Render dashboard:
+
 - Backend (placement-backend): https://PLACEMENT-BACKEND-SUBDOMAIN.onrender.com
 - Resume NLP: https://RESUME-NLP-SUBDOMAIN.onrender.com
 - Collaborative Filter: https://COLLABORATIVE-FILTER-SUBDOMAIN.onrender.com
@@ -109,6 +112,7 @@ After deploy, grab the service URLs from the Render dashboard:
 - Frontend (placement-frontend): https://PLACEMENT-FRONTEND-SUBDOMAIN.onrender.com
 
 Notes:
+
 - The blueprint sets VITE_API_URL for the static Frontend to point to `https://placement-backend.onrender.com`.
   - If your backend URL differs, update the Frontend service Env Var `VITE_API_URL` to the actual backend URL and redeploy.
 - The backend picks up the ML service URLs via env vars in the blueprint; if your ML service names differ, update them and redeploy.
@@ -116,6 +120,7 @@ Notes:
 - Free plan may sleep services when idle; first request may be cold.
 
 Verification after deployment:
+
 - Backend: `GET /health` → `{ "status": "ok" }`
 - Frontend: load the URL and interact with the three features.
 - Endpoints: use the `tests/smoke.http` file with updated base URLs.
