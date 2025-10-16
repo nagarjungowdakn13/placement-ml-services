@@ -1,0 +1,70 @@
+Python
+Java
+C
+C++
+C#
+JavaScript
+TypeScript
+Go
+Rust
+Kotlin
+Swift
+R
+
+HTML
+CSS
+React
+Angular
+Vue.js
+Next.js
+Node.js
+Express
+Spring Boot
+Django
+Flask
+FastAPI
+.NET Core
+
+MySQL
+PostgreSQL
+MongoDB
+SQLite
+Oracle Database
+SQL Server
+Redis
+
+AWS
+Azure
+Google Cloud
+Docker
+Kubernetes
+Terraform
+Ansible
+Jenkins
+GitHub Actions
+Git
+Linux
+
+Machine Learning
+Deep Learning
+scikit-learn
+TensorFlow
+Keras
+PyTorch
+Pandas
+NumPy
+Matplotlib
+Seaborn
+
+Apache Spark
+Apache Kafka
+Apache Airflow
+Elasticsearch
+RabbitMQ
+
+JWT
+OAuth 2.0
+JUnit
+PyTest
+Selenium
+Cypress

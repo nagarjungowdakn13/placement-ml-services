@@ -1,74 +1,476 @@
-python
-java
-c++
-javascript
-typescript
-react
-node.js
-express
-fastapi
-django
-flask
-sql
-postgresql
-mysql
-mongodb
-redis
-docker
-kubernetes
-aws
-azure
-gcp
-machine learning
-data analysis
-nlp
-computer vision
-pandas
-numpy
+Python
+Java
+C++
+C#
+JavaScript
+TypeScript
+Go
+Rust
+Scala
+Kotlin
+Swift
+Objective-C
+PHP
+Ruby
+R
+Julia
+MATLAB
+Dart
+Haskell
+Elixir
+Erlang
+SQL
+PL/SQL
+Bash
+PowerShell
+
+HTML
+CSS
+Sass
+Less
+Tailwind CSS
+Bootstrap
+Material UI
+Chakra UI
+Ant Design
+Styled Components
+
+React
+Redux
+React Query
+Next.js
+Vue.js
+Vuex
+Nuxt.js
+Angular
+Svelte
+SvelteKit
+jQuery
+Web Components
+
+Node.js
+Express
+NestJS
+Koa
+Fastify
+Hapi
+
+Spring
+Spring Boot
+Spring MVC
+Spring Security
+Hibernate
+JPA
+Micronaut
+Quarkus
+Jakarta EE
+.NET
+ASP.NET Core
+Entity Framework
+Ruby on Rails
+Laravel
+Symfony
+CodeIgniter
+Phoenix
+Django
+Flask
+FastAPI
+Pyramid
+Tornado
+Gin
+Fiber
+
+REST
+GraphQL
+gRPC
+WebSockets
+OpenAPI
+Swagger
+Postman
+OAuth 2.0
+OpenID Connect
+JWT
+API Gateway
+
+MySQL
+PostgreSQL
+SQLite
+MariaDB
+Oracle Database
+SQL Server
+DB2
+MongoDB
+Cassandra
+Redis
+DynamoDB
+Couchbase
+CouchDB
+Neo4j
+Elasticsearch
+OpenSearch
+Solr
+InfluxDB
+TimescaleDB
+ClickHouse
+Snowflake
+BigQuery
+Redshift
+Athena
+DuckDB
+
+Hadoop
+Spark
+Hive
+HBase
+Flink
+Kafka
+Pulsar
+Airflow
+Beam
+NiFi
+Storm
+Presto
+Trino
+Dask
+Ray
+
+Parquet
+ORC
+Avro
+Delta Lake
+Apache Iceberg
+Apache Hudi
+
+AWS
+Azure
+Google Cloud
+EC2
+S3
+Lambda
+API Gateway (AWS)
+ECS
+EKS
+RDS
+CloudWatch
+CloudFormation
+CDK
+IAM
+AWS Glue
+AWS Step Functions
+Azure App Service
+Azure Functions
+AKS
+Cosmos DB
+Azure Blob Storage
+Azure DevOps
+Azure Monitor
+GCE
+GKE
+Cloud Run
+Pub/Sub
+BigQuery (GCP)
+Cloud Functions (GCP)
+Cloud Storage (GCP)
+
+Docker
+Docker Compose
+Podman
+Kubernetes
+Helm
+Kustomize
+OpenShift
+Rancher
+Istio
+Linkerd
+Envoy
+Traefik
+Service Mesh
+
+Terraform
+Pulumi
+Ansible
+Chef
+Puppet
+
+Jenkins
+GitHub Actions
+GitLab CI
+CircleCI
+Travis CI
+Azure Pipelines
+Argo CD
+Tekton
+Spinnaker
+TeamCity
+Bamboo
+
+Prometheus
+Grafana
+ELK Stack
+EFK Stack
+Loki
+Jaeger
+Zipkin
+OpenTelemetry
+Datadog
+New Relic
+Splunk
+Sentry
+
+Nginx
+Apache HTTP Server
+HAProxy
+Caddy
+Varnish
+
+Git
+GitHub
+GitLab
+Bitbucket
+SVN
+
+JUnit
+TestNG
+Mockito
+AssertJ
+Cypress
+Playwright
+Selenium
+Puppeteer
+Jest
+Mocha
+Chai
+Vitest
+Enzyme
+RSpec
+PyTest
+Robot Framework
+Postman (Newman)
+Karate
+K6
+Gatling
+JMeter
+
+OWASP Top 10
+SAST
+DAST
+SCA
+Burp Suite
+Metasploit
+Nmap
+Wireshark
+Vault
+Keycloak
+TLS
+mTLS
+CSP
+CSRF
+CORS
+WAF
+Secrets Management
+
+Android
+iOS
+React Native
+Flutter
+SwiftUI
+Jetpack Compose
+Xamarin
+Ionic
+Cordova
+
+Machine Learning
+Deep Learning
+NLP
+Computer Vision
+Recommender Systems
+Time Series Analysis
+MLOps
+Data Mining
+A/B Testing
+Feature Engineering
+Model Deployment
+Model Monitoring
+
 scikit-learn
-tensorflow
-pytorch
-html
-css
-git
-linux
-bash
-rest api
-graphql
-microservices
-agile
-jira
-unit testing
-pytest
-ci/cd
-jenkins
-github actions
-terraform
-ansible
-spark
-hadoop
-scala
-go
-r
-php
-laravel
-ruby
-rails
-selenium
-cypress
-quality assurance
-cloud architecture
-security
-encryption
-authentication
-authorization
-servicenow
-salesforce
-power bi
-tableau
-matlab
-data visualization
-feature engineering
-model deployment
-prompt engineering
-large language models
+TensorFlow
+Keras
+PyTorch
+XGBoost
+LightGBM
+CatBoost
+OpenCV
+NLTK
+spaCy
+Transformers
+Hugging Face
+RAPIDS
+ONNX
+TorchServe
+TFX
+MLflow
+DVC
+Kubeflow
+Feast
+
+Pandas
+NumPy
+SciPy
+Matplotlib
+Seaborn
+Plotly
+Altair
+Statsmodels
+JAX
+
+System Design
+Distributed Systems
+Concurrency
+Multithreading
+Parallel Computing
+Asynchronous Programming
+Reactive Programming
+Event-Driven Architecture
+CQRS
+Event Sourcing
+Hexagonal Architecture
+Clean Architecture
+Domain-Driven Design
+Design Patterns
+SOLID Principles
+Twelve-Factor App
+Monolith
+Microservices
+Service Oriented Architecture
+
+Operating Systems
+Linux
+Windows
+Unix
+Shell Scripting
+
+Networking
+TCP/IP
+UDP
+HTTP
+HTTPS
+DNS
+DHCP
+gRPC (Protocol)
+RPC
+WebRTC
+Load Balancing
+Reverse Proxy
+
+Message Queues
+RabbitMQ
+ActiveMQ
+Amazon SQS
+Amazon SNS
+EventBridge
+NATS
+ZeroMQ
+MQTT
+Redis Streams
+
+Caching
+Redis (Cache)
+Memcached
+
+Build Tools
+Maven
+Gradle
+sbt
+npm
+pnpm
+yarn
+pip
+Poetry
+Conda
+
+Package & Artifact Repos
+Nexus
+Artifactory
+GitHub Packages
+
+Business Intelligence
+Power BI
+Tableau
+Apache Superset
+Metabase
+Looker
+
+WebAssembly
+WASM
+Progressive Web Apps
+Service Workers
+Web Workers
+WebRTC (Web)
+
+Accessibility (a11y)
+Internationalization (i18n)
+Localization (l10n)
+
+Agile
+Scrum
+Kanban
+Jira
+Confluence
+Code Review
+Pair Programming
+TDD
+BDD
+Static Analysis
+Linters
+Prettier
+ESLint
+
+Data Structures
+Algorithms
+Big-O Notation
+Graph Algorithms
+Dynamic Programming
+Greedy Algorithms
+Trees
+Heaps
+Hash Tables
+Sorting
+Searching
+
+Cryptography
+Hashing
+Encryption
+Key Management
+Public Key Infrastructure
+
+Edge Computing
+IoT
+Arduino
+Raspberry Pi
+Azure IoT Hub
+AWS IoT Core
+Google Cloud IoT
+
+Versioning
+Semantic Versioning
+Changelog Management
+
+Observability
+Logging
+Metrics
+Tracing
+
+Feature Flags
+LaunchDarkly
+Unleash
+
+AIOps
+FinOps
+Cost Optimization
+
+Compliance
+GDPR
+SOC 2
+HIPAA
+ISO 27001
+C

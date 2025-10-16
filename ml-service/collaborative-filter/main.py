@@ -44,10 +44,9 @@ def recommend_jobs(payload: dict = Body(...), top_n: int = 5):
     for job, tags in JOB_CATALOG.items():
         tagset = {t.lower() for t in tags}
         overlap = len(skillset & tagset)
-        if overlap:
+        if overlap >= 2:
             scored.append((job, overlap, len(tagset)))
 
-    # sort by overlap desc then coverage ratio desc
     scored.sort(key=lambda x: (x[1], x[1]/x[2] if x[2] else 0), reverse=True)
     recs = [j for j, _, _ in scored[:top_n]]
     logger.info("Recommendations computed count=%d", len(recs))

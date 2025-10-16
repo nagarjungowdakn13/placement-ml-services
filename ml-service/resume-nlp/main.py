@@ -1,12 +1,12 @@
-from fastapi import FastAPI, UploadFile, File
+from fastapi import FastAPI, UploadFile, File, Query
 from fastapi.middleware.cors import CORSMiddleware
-from rapidfuzz import process
 import uvicorn
 from io import BytesIO
 from typing import List, Optional
 import os
 import logging
 from functools import lru_cache
+import re
 
 # PDF and DOCX extractors
 def extract_text_from_pdf(data: bytes) -> str:
@@ -62,10 +62,19 @@ try:
 except Exception:
     nlp = None
 
-DEFAULT_CORPUS_PATH = os.getenv("SKILL_CORPUS_PATH", os.path.join(os.path.dirname(__file__), "skill_corpus.txt"))
+BASE_DIR = os.path.dirname(__file__)
+DEFAULT_CORPUS_FULL = os.path.join(BASE_DIR, "skill_corpus.txt")
+DEFAULT_CORPUS_LEAN = os.path.join(BASE_DIR, "skill_corpus_lean.txt")
 
-def load_corpus(path: Optional[str] = None) -> List[str]:
-    p = path or DEFAULT_CORPUS_PATH
+def select_corpus_path(mode: Optional[str] = None) -> str:
+    env_path = os.getenv("SKILL_CORPUS_PATH")
+    if env_path:
+        return env_path
+    selected = (mode or os.getenv("SKILL_CORPUS_MODE", "full")).lower()
+    return DEFAULT_CORPUS_LEAN if selected in ("lean", "skills", "skills-only") else DEFAULT_CORPUS_FULL
+
+def load_corpus(path: Optional[str] = None, mode: Optional[str] = None) -> List[str]:
+    p = path or select_corpus_path(mode)
     try:
         with open(p, "r", encoding="utf-8") as f:
             corpus = [line.strip() for line in f if line.strip()]
@@ -76,7 +85,26 @@ def load_corpus(path: Optional[str] = None) -> List[str]:
         # fallback to minimal set
         return ["python", "java", "sql", "react"]
 
-skill_corpus = load_corpus()
+skill_corpus: List[str] = load_corpus()
+compiled_patterns: List[tuple[str, re.Pattern]] = []
+
+SHORT_SKILL_WHITELIST = {"c", "go", "r"}
+
+def compile_patterns():
+    global compiled_patterns
+    compiled_patterns = []
+    for s in sorted(skill_corpus, key=lambda x: len(x), reverse=True):
+        sl = s.strip()
+        if not sl:
+            continue
+        if len(sl) < 2 and sl.lower() not in SHORT_SKILL_WHITELIST:
+            continue
+        # Case-insensitive, ensure not part of a larger alphanumeric token
+        pattern = re.compile(rf"(?<![A-Za-z0-9]){re.escape(sl)}(?![A-Za-z0-9])", re.IGNORECASE)
+        compiled_patterns.append((s, pattern))
+    logger.info("Compiled %d skill patterns", len(compiled_patterns))
+
+compile_patterns()
 
 @app.get("/health")
 def health():
@@ -91,10 +119,11 @@ def diagnostics():
     }
 
 @app.post("/reload-corpus")
-def reload_corpus():
+def reload_corpus(mode: Optional[str] = Query(default=None, description="full|lean")):
     global skill_corpus
-    skill_corpus = load_corpus()
-    return {"reloaded": True, "corpus_size": len(skill_corpus)}
+    skill_corpus = load_corpus(mode=mode)
+    compile_patterns()
+    return {"reloaded": True, "corpus_size": len(skill_corpus), "mode": (mode or os.getenv("SKILL_CORPUS_MODE", "full"))}
 
 @app.post("/parse")
 async def parse_resume(file: UploadFile = File(...)):
@@ -120,31 +149,47 @@ async def parse_resume(file: UploadFile = File(...)):
         # Gracefully return empty skills if extraction fails
         return {"skills": []}
 
-    tokens = []
-    if nlp is not None:
-        try:
-            doc = nlp(text)
-            tokens = [t.text for t in doc]
-        except Exception:
-            tokens = text.split()
-    else:
-        tokens = text.split()
+    # normalize whitespace to make multi-word matches robust across line breaks
+    norm_text = re.sub(r"\s+", " ", text)
 
-    extracted_skills = set()
-    lowered = [s.lower() for s in skill_corpus]
-    # fuzzy match tokens against corpus (case-insensitive)
-    for tok in tokens:
-        match = process.extractOne(tok, lowered)
-        if match and match[1] >= 85:
-            # recover original casing by index lookup
-            try:
-                idx = lowered.index(match[0])
-                extracted_skills.add(skill_corpus[idx])
-            except ValueError:
-                extracted_skills.add(match[0])
-    logger.info("Extracted %d skills", len(extracted_skills))
+    # Prefer the SKILLS section if present to reduce false positives
+    def slice_skills_section(t: str) -> str:
+        tl = t
+        # Use uppercase for heading scan but retain original for matching
+        up = tl.upper()
+        start = up.find("\nSKILLS")
+        if start == -1:
+            start = up.find(" SKILLS")
+        if start == -1:
+            return tl
+        # Candidates for the next heading
+        next_heads = [
+            "\nPROJECTS", "\nEXPERIENCE", "\nWORK EXPERIENCE", "\nEDUCATION", "\nCERTIFICATIONS",
+            "\nACHIEVEMENTS", "\nINTERNSHIP", "\nPUBLICATIONS", "\nAWARDS", "\nSUMMARY", "\nPROFILE"
+        ]
+        end_positions = [up.find(h, start + 1) for h in next_heads]
+        end_positions = [p for p in end_positions if p != -1]
+        end = min(end_positions) if end_positions else -1
+        if end != -1 and end > start:
+            return tl[start:end]
+        return tl[start:]
 
-    return {"skills": sorted(extracted_skills)}
+    search_text = slice_skills_section("\n" + norm_text)  # add leading newline to help heading detection
+
+    found_ordered = []
+    seen = set()
+    for original, pattern in compiled_patterns:
+        m = pattern.search(search_text)
+        if m:
+            resume_case = m.group(0)
+            key = resume_case.lower()
+            if key not in seen:
+                seen.add(key)
+                found_ordered.append((m.start(), resume_case))
+    found_ordered.sort(key=lambda x: x[0])
+    skills_out = [s for _, s in found_ordered]
+    logger.info("Extracted %d skills (exact exact-section match)", len(skills_out))
+    return {"skills": skills_out}
 
 if __name__ == "__main__":
     uvicorn.run(app, host="0.0.0.0", port=8001)
