@@ -22,7 +22,12 @@ const ResumeUpload = ({ onExtracted }) => {
       setSkills(s);
       onExtracted && onExtracted(s);
     } catch (e) {
-      setError("Failed to upload or parse resume");
+      const details =
+        e?.response?.data?.details ||
+        e?.response?.data?.error ||
+        e?.message ||
+        "Failed to upload or parse resume";
+      setError(typeof details === "string" ? details : JSON.stringify(details));
     } finally {
       setLoading(false);
     }

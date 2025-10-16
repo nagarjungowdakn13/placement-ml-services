@@ -11,7 +11,7 @@ export const parseResume = async (filePath: string) => {
   const response = await axios.post(`${NLP_BASE_URL}/parse`, form, {
     headers: form.getHeaders(),
     maxBodyLength: Infinity,
-    timeout: 10000,
+    timeout: 30000,
   });
   return response.data.skills as string[];
 };
@@ -22,7 +22,7 @@ export const parseResumeBuffer = async (buffer: Buffer, filename: string) => {
   const response = await axios.post(`${NLP_BASE_URL}/parse`, form, {
     headers: form.getHeaders(),
     maxBodyLength: Infinity,
-    timeout: 10000,
+    timeout: 30000,
   });
   return response.data.skills as string[];
 };

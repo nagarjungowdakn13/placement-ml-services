@@ -26,7 +26,13 @@ router.post(
       );
       res.json({ skills });
     } catch (err) {
-      res.status(500).json({ error: "Failed to parse resume" });
+      const message =
+        (err as any)?.response?.data ||
+        (err as Error)?.message ||
+        "Failed to parse resume";
+      res
+        .status(500)
+        .json({ error: "Failed to parse resume", details: message });
     }
   }
 );

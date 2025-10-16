@@ -1,4 +1,4 @@
-from fastapi import FastAPI, UploadFile, File, Query
+from fastapi import FastAPI, UploadFile, File, Query, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 import uvicorn
 from io import BytesIO
@@ -8,21 +8,29 @@ import logging
 from functools import lru_cache
 import re
 
+# Optional OCR availability flags
+try:
+    from PIL import Image  # type: ignore
+    import pytesseract  # type: ignore
+    OCR_AVAILABLE = True
+except Exception:
+    OCR_AVAILABLE = False
+
 # PDF and DOCX extractors
 def extract_text_from_pdf(data: bytes) -> str:
-    # Try pdfminer first, fallback to pypdf
+    # Try PyPDF first (usually faster), then fallback to pdfminer
     text = ""
     try:
-        from pdfminer.high_level import extract_text
-        text = extract_text(BytesIO(data)) or ""
+        from pypdf import PdfReader
+        reader = PdfReader(BytesIO(data))
+        pages = [p.extract_text() or "" for p in reader.pages]
+        text = "\n".join(pages)
     except Exception:
         pass
     if not text:
         try:
-            from pypdf import PdfReader
-            reader = PdfReader(BytesIO(data))
-            pages = [p.extract_text() or "" for p in reader.pages]
-            text = "\n".join(pages)
+            from pdfminer.high_level import extract_text
+            text = extract_text(BytesIO(data)) or ""
         except Exception:
             return ""
     return text
@@ -36,9 +44,9 @@ def extract_text_from_docx(data: bytes) -> str:
         return ""
 
 def extract_text_from_image(data: bytes) -> str:
+    if not OCR_AVAILABLE:
+        return ""
     try:
-        from PIL import Image
-        import pytesseract
         img = Image.open(BytesIO(data))
         return pytesseract.image_to_string(img) or ""
     except Exception:
@@ -115,6 +123,7 @@ def diagnostics():
     return {
         "corpus_size": len(skill_corpus),
         "spacy_enabled": bool(nlp),
+        "ocr_available": OCR_AVAILABLE,
         "sample": skill_corpus[:10]
     }
 
@@ -137,6 +146,9 @@ async def parse_resume(file: UploadFile = File(...)):
     elif filename.endswith(".docx"):
         text = extract_text_from_docx(data)
     elif filename.endswith(".jpg") or filename.endswith(".jpeg") or filename.endswith(".png"):
+        if not OCR_AVAILABLE:
+            # Make it explicit to callers that OCR is not available
+            raise HTTPException(status_code=501, detail="OCR is not available on this service. Install Pillow+pytesseract or use PDF/DOCX.")
         text = extract_text_from_image(data)
     else:
         # fallback assume utf-8 text

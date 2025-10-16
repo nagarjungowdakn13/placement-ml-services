@@ -4,6 +4,4 @@ rapidfuzz
 python-multipart
 pdfminer.six
 python-docx
-pillow
-pytesseract
 pypdf
