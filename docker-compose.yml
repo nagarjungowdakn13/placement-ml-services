@@ -43,6 +43,8 @@ services:
     build: ./ml-service/resume-nlp
     container_name: resume_nlp
     restart: always
+    environment:
+      - PDF_EXTRACTOR=pdfminer
     ports:
       - "8001:8001"
 

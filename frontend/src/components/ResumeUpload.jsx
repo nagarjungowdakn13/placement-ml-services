@@ -1,7 +1,7 @@
 import axios from "axios";
 import { useCallback, useState } from "react";
 
-const ResumeUpload = ({ onExtracted }) => {
+const ResumeUpload = ({ onExtracted, onParsed }) => {
   const [skills, setSkills] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -19,8 +19,10 @@ const ResumeUpload = ({ onExtracted }) => {
       formData.append("resume", file);
       const res = await axios.post(`${API}/api/resumes/upload`, formData);
       const s = (res.data.skills || []).sort();
+      const p = Array.isArray(res.data.projects) ? res.data.projects : [];
       setSkills(s);
       onExtracted && onExtracted(s);
+      onParsed && onParsed({ skills: s, projects: p });
     } catch (e) {
       const details =
         e?.response?.data?.details ||
@@ -67,6 +69,7 @@ const ResumeUpload = ({ onExtracted }) => {
     if (window.confirm("Clear all extracted/added skills?")) {
       setSkills([]);
       onExtracted && onExtracted([]);
+      onParsed && onParsed({ skills: [], projects: [] });
     }
   };
 
@@ -142,6 +145,8 @@ const ResumeUpload = ({ onExtracted }) => {
           No skills detected. You can add them manually.
         </div>
       )}
+
+      {/* Projects are now displayed in a separate card via parent */}
     </div>
   );
 };

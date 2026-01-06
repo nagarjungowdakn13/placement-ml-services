@@ -20,11 +20,14 @@ router.post(
   async (req: Request, res: Response) => {
     if (!req.file) return res.status(400).json({ error: "No file uploaded" });
     try {
-      const skills = await parseResumeBuffer(
+      const parsed = await parseResumeBuffer(
         req.file.buffer,
         req.file.originalname
       );
-      res.json({ skills });
+      res.json({
+        skills: parsed.skills || [],
+        projects: parsed.projects || [],
+      });
     } catch (err) {
       const message =
         (err as any)?.response?.data ||

@@ -1,10 +1,12 @@
 import { useEffect, useState } from "react";
 import PlacementPrediction from "./components/PlacementPrediction";
+import Projects from "./components/Projects";
 import RecommendedJobs from "./components/RecommendedJobs";
 import ResumeUpload from "./components/ResumeUpload";
 
 function App() {
   const [skills, setSkills] = useState([]);
+  const [projects, setProjects] = useState([]);
   const [dark, setDark] = useState(() => {
     try {
       return localStorage.getItem("theme") === "dark";
@@ -45,7 +47,13 @@ function App() {
       <div className="grid grid-cols-2" style={{ alignItems: "stretch" }}>
         <div className="card" style={{ gridColumn: "1 / -1" }}>
           <h2>Resume & Skills</h2>
-          <ResumeUpload onExtracted={setSkills} />
+          <ResumeUpload
+            onExtracted={setSkills}
+            onParsed={({ skills, projects }) => {
+              setSkills(skills || []);
+              setProjects(projects || []);
+            }}
+          />
         </div>
         <div className="card">
           <h2>Recommended Jobs</h2>
@@ -54,6 +62,10 @@ function App() {
         <div className="card">
           <h2>Placement Probability</h2>
           <PlacementPrediction skills={skills} />
+        </div>
+        <div className="card">
+          <h2>Projects</h2>
+          <Projects projects={projects} />
         </div>
       </div>
     </div>

@@ -4,7 +4,12 @@ import fs from "fs";
 
 const NLP_BASE_URL = process.env.NLP_SERVICE_URL || "http://localhost:8001";
 
-export const parseResume = async (filePath: string) => {
+export type ParsedResume = {
+  skills: string[];
+  projects?: { title: string; description: string }[];
+};
+
+export const parseResume = async (filePath: string): Promise<ParsedResume> => {
   const form = new FormData();
   form.append("file", fs.createReadStream(filePath));
 
@@ -13,10 +18,13 @@ export const parseResume = async (filePath: string) => {
     maxBodyLength: Infinity,
     timeout: 30000,
   });
-  return response.data.skills as string[];
+  return response.data as ParsedResume;
 };
 
-export const parseResumeBuffer = async (buffer: Buffer, filename: string) => {
+export const parseResumeBuffer = async (
+  buffer: Buffer,
+  filename: string
+): Promise<ParsedResume> => {
   const form = new FormData();
   form.append("file", buffer, { filename });
   const response = await axios.post(`${NLP_BASE_URL}/parse`, form, {
@@ -24,5 +32,5 @@ export const parseResumeBuffer = async (buffer: Buffer, filename: string) => {
     maxBodyLength: Infinity,
     timeout: 30000,
   });
-  return response.data.skills as string[];
+  return response.data as ParsedResume;
 };
