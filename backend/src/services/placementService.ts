@@ -1,7 +1,11 @@
 import axios from "axios";
 
-const PLACEMENT_BASE_URL =
-  process.env.PLACEMENT_SERVICE_URL || "http://localhost:8003";
+const rawPlacementUrl = process.env.PLACEMENT_SERVICE_URL;
+const PLACEMENT_BASE_URL = rawPlacementUrl
+  ? rawPlacementUrl.startsWith("http")
+    ? rawPlacementUrl
+    : `http://${rawPlacementUrl}`
+  : "http://localhost:8003";
 
 export const predictPlacement = async (skills: string[]) => {
   const response = await axios.post(

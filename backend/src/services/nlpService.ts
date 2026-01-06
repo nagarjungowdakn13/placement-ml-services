@@ -2,7 +2,12 @@ import axios from "axios";
 import FormData from "form-data";
 import fs from "fs";
 
-const NLP_BASE_URL = process.env.NLP_SERVICE_URL || "http://localhost:8001";
+const rawNlpUrl = process.env.NLP_SERVICE_URL;
+const NLP_BASE_URL = rawNlpUrl
+  ? rawNlpUrl.startsWith("http")
+    ? rawNlpUrl
+    : `http://${rawNlpUrl}`
+  : "http://localhost:8001";
 
 export type ParsedResume = {
   skills: string[];

@@ -1,6 +1,11 @@
 import axios from "axios";
 
-const CF_BASE_URL = process.env.CF_SERVICE_URL || "http://localhost:8002";
+const rawCfUrl = process.env.CF_SERVICE_URL;
+const CF_BASE_URL = rawCfUrl
+  ? rawCfUrl.startsWith("http")
+    ? rawCfUrl
+    : `http://${rawCfUrl}`
+  : "http://localhost:8002";
 
 export const getJobRecommendations = async (skills: string[], topN: number) => {
   const response = await axios.post(

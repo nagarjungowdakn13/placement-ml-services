@@ -11,17 +11,17 @@ services:
         fromService:
           type: web
           name: resume-nlp
-          property: url
+          property: hostport
       - key: CF_SERVICE_URL
         fromService:
           type: web
           name: collaborative-filter
-          property: url
+          property: hostport
       - key: PLACEMENT_SERVICE_URL
         fromService:
           type: web
           name: placement-predict
-          property: url
+          property: hostport
     autoDeploy: true
 
   - type: web
