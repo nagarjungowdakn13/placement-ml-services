@@ -6,12 +6,17 @@ const router = (0, express_1.Router)();
 router.get("/", (_req, res) => {
     res.status(405).json({
         error: "Method Not Allowed",
-        message: "Use POST /api/placement with JSON body of student features",
+        message: "Use POST /api/placement with JSON body { skills: string[] }",
     });
 });
 router.post("/", async (req, res) => {
     try {
-        const probability = await (0, placementService_1.predictPlacement)(req.body);
+        const skills = Array.isArray(req.body?.skills)
+            ? req.body.skills
+            : [];
+        if (!skills.length)
+            return res.status(400).json({ error: "skills array required" });
+        const probability = await (0, placementService_1.predictPlacement)(skills);
         res.json({ placement_probability: probability });
     }
     catch (err) {

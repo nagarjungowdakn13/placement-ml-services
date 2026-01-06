@@ -19,11 +19,19 @@ router.post("/upload", upload.single("resume"), async (req, res) => {
     if (!req.file)
         return res.status(400).json({ error: "No file uploaded" });
     try {
-        const skills = await (0, nlpService_1.parseResumeBuffer)(req.file.buffer, req.file.originalname);
-        res.json({ skills });
+        const parsed = await (0, nlpService_1.parseResumeBuffer)(req.file.buffer, req.file.originalname);
+        res.json({
+            skills: parsed.skills || [],
+            projects: parsed.projects || [],
+        });
     }
     catch (err) {
-        res.status(500).json({ error: "Failed to parse resume" });
+        const message = err?.response?.data ||
+            err?.message ||
+            "Failed to parse resume";
+        res
+            .status(500)
+            .json({ error: "Failed to parse resume", details: message });
     }
 });
 exports.default = router;
